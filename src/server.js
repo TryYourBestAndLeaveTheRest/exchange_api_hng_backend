@@ -4,6 +4,7 @@ const cors = require('cors');
 const config = require('./config/config');
 const db = require('./config/database');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
+const { consoleLogger, fileLogger, databaseLogger } = require('./middleware/logger');
 
 // Import routes
 const countryRoutes = require('./routes/countryRoutes');
@@ -17,11 +18,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  next();
-});
+// Logging middleware (must be before routes)
+// app.use(captureResponseTime);    // Capture response time
+app.use(consoleLogger);           // Log to console with colors
+app.use(fileLogger);              // Log to file (access.log)
+app.use(databaseLogger);          // Log to database (request_logs table)
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -63,21 +64,7 @@ async function startServer() {
 
     // Start listening
     app.listen(config.server.port, () => {
-      console.log('='.repeat(50));
       console.log(`🚀 Server running on port ${config.server.port}`);
-      console.log(`📝 Environment: ${config.server.env}`);
-      console.log(`🌍 Countries API: ${config.api.countriesUrl}`);
-      console.log(`💱 Exchange Rate API: ${config.api.exchangeRateUrl}`);
-      console.log('='.repeat(50));
-      console.log('\nAvailable endpoints:');
-      console.log(`  GET    http://localhost:${config.server.port}/`);
-      console.log(`  POST   http://localhost:${config.server.port}/countries/refresh`);
-      console.log(`  GET    http://localhost:${config.server.port}/countries`);
-      console.log(`  GET    http://localhost:${config.server.port}/countries/:name`);
-      console.log(`  DELETE http://localhost:${config.server.port}/countries/:name`);
-      console.log(`  GET    http://localhost:${config.server.port}/status`);
-      console.log(`  GET    http://localhost:${config.server.port}/countries/image`);
-      console.log('\n' + '='.repeat(50));
     });
   } catch (error) {
     console.error('Failed to start server:', error);

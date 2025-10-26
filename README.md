@@ -13,6 +13,7 @@ A RESTful API that fetches country data from external APIs, calculates estimated
 - 🔍 Filter by region and currency
 - 📈 Sort by GDP, population, or name
 - ✅ Input validation and comprehensive error handling
+- 📝 Advanced logging (console, file, and database)
 
 ---
 
@@ -371,6 +372,85 @@ updated_at  DATETIME
 
 ---
 
+## 📝 Logging
+
+The API implements comprehensive logging using Morgan:
+
+### Log Types
+
+1. **Console Logs** - Color-coded based on status code:
+   - 🟢 Green: 2xx (Success)
+   - 🟡 Yellow: 4xx (Client errors)
+   - 🔴 Red: 5xx (Server errors)
+   - 🔵 Cyan: 3xx (Redirects)
+
+2. **File Logs** - Detailed logs saved to `logs/access.log`:
+   ```
+   127.0.0.1 - - [26/Oct/2025:12:00:00 +0000] "GET /countries HTTP/1.1" 200 1234 "-" "curl/7.68.0" 45.123 ms
+   ```
+
+3. **Database Logs** - Request logs stored in `request_logs` table:
+   - Method, URL, Status Code
+   - IP Address, User Agent
+   - Response Time
+   - Timestamp
+
+### Viewing Logs
+
+**Console:**
+Logs appear automatically in the terminal when running the server.
+
+**File:**
+```bash
+# View all logs
+cat logs/access.log
+
+# Tail logs in real-time
+tail -f logs/access.log
+
+# Filter by status code (e.g., 404 errors)
+grep " 404 " logs/access.log
+```
+
+**Database:**
+```sql
+-- View recent logs
+SELECT * FROM request_logs ORDER BY created_at DESC LIMIT 50;
+
+-- Count requests by status code
+SELECT status_code, COUNT(*) as count 
+FROM request_logs 
+GROUP BY status_code;
+
+-- Find slow requests (over 1 second)
+SELECT * FROM request_logs 
+WHERE response_time_ms > 1000 
+ORDER BY response_time_ms DESC;
+
+-- Requests by endpoint
+SELECT url, COUNT(*) as count 
+FROM request_logs 
+GROUP BY url 
+ORDER BY count DESC;
+```
+
+### Log Schema
+
+```sql
+CREATE TABLE request_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  method VARCHAR(10) NOT NULL,
+  url TEXT NOT NULL,
+  status_code INT NOT NULL,
+  ip_address VARCHAR(45),
+  user_agent TEXT,
+  response_time_ms DECIMAL(10, 3),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
 ## ⚙️ Configuration
 
 ### Environment Variables (.env)
@@ -611,6 +691,7 @@ npm run init-db    # Initialize database
 | canvas | 2.11.2 | Image generation |
 | dotenv | 16.3.1 | Environment config |
 | cors | 2.8.5 | CORS middleware |
+| morgan | 1.10.0 | HTTP request logger |
 
 ---
 
