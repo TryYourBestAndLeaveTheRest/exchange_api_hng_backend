@@ -21,10 +21,39 @@ A RESTful API that fetches country data from external APIs, calculates estimated
 ### Prerequisites
 - Node.js 14+ and npm
 - MySQL 5.7+
+- System libraries for canvas (see below)
+
+### System Dependencies for Canvas
+
+The `canvas` package requires native system libraries. Install them before running `npm install`:
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+```
+
+**Fedora/RHEL/CentOS:**
+```bash
+sudo yum install -y gcc-c++ cairo-devel pango-devel libjpeg-turbo-devel giflib-devel librsvg2-devel
+```
+
+**macOS:**
+```bash
+brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
+```
+
+**Windows:**
+- No additional dependencies needed (uses pre-built binaries)
+- OR install with: `npm install canvas --build-from-source`
+
+> **Note:** If you encounter canvas installation errors, see the [canvas package documentation](https://www.npmjs.com/package/canvas) for detailed OS-specific instructions.
 
 ### Setup in 5 Minutes
 
 ```bash
+# 0. Install system dependencies (see above for your OS)
+
 # 1. Install dependencies
 npm install
 
@@ -477,6 +506,41 @@ npm install express-rate-limit
 
 ## 🐛 Troubleshooting
 
+### Canvas Installation Errors
+**Problem:** `npm install` fails with canvas-related errors
+
+**Solutions:**
+
+**Linux (Ubuntu/Debian):**
+```bash
+# Install required system libraries
+sudo apt-get update
+sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+
+# Then retry npm install
+npm install
+```
+
+**macOS:**
+```bash
+# Install via Homebrew
+brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
+
+# If still failing, try:
+export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
+npm install
+```
+
+**Common canvas errors:**
+- `node-gyp` errors → Install build tools: `npm install -g node-gyp`
+- `Python not found` → Install Python 3.x
+- Missing libraries → See system dependencies section above
+
+**Alternative (if canvas keeps failing):**
+You can temporarily disable image generation by commenting out the image service calls in `src/controllers/countryController.js` (lines with `imageService.generateSummaryImage()`), though you'll lose the summary image feature.
+
+---
+
 ### Database Connection Error
 **Problem:** `❌ Database connection failed`
 
@@ -513,7 +577,7 @@ npm install express-rate-limit
 **Solution:**
 - Run `POST /countries/refresh` first
 - Check if `cache/` directory exists
-- Verify canvas library is installed
+- Verify canvas library is installed properly
 
 ---
 
