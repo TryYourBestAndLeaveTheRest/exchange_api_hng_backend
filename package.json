@@ -4,7 +4,8 @@
   "description": "RESTful API that fetches country data from an external API, stores it in a database, and provides CRUD operations",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "npm run init-db && npm run serve",
+    "serve": "node src/server.js",
     "dev": "nodemon src/server.js",
     "init-db": "node src/config/initDatabase.js",
     "test": "echo \"Error: no test specified\" && exit 1"
