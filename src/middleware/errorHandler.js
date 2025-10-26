@@ -15,8 +15,12 @@ class ApiError extends Error {
  * Error handler middleware
  */
 function errorHandler(err, req, res, next) {
-  // Log error for debugging
-  console.error('Error:', err);
+  // Log error for debugging (always log to console)
+  console.error('=== Error Details ===');
+  console.error('Message:', err.message);
+  console.error('Stack:', err.stack);
+  console.error('Code:', err.code);
+  console.error('===================');
 
   // Default error
   let statusCode = 500;
@@ -38,20 +42,33 @@ function errorHandler(err, req, res, next) {
   } else if (err.message && err.message.includes('External data source unavailable')) {
     statusCode = 503;
     message = err.message;
+  } else if (err.code && err.code.startsWith('ER_')) {
+    // MySQL errors
+    statusCode = 500;
+    message = 'Database error occurred';
+    // Only expose specific error details in development
+    if (process.env.NODE_ENV === 'development') {
+      details = err.message;
+    }
+  } else if (err.name === 'SyntaxError' && err.message.includes('JSON')) {
+    statusCode = 400;
+    message = 'Invalid JSON in request body';
   }
 
-  // Send error response
+  // Build error response
   const response = {
     error: message
   };
 
+  // Add details if available
   if (details) {
     response.details = details;
   }
 
-  // Include stack trace in development
-  if (process.env.NODE_ENV === 'development' && err.stack) {
+  // Only include stack trace in development mode
+  if (process.env.NODE_ENV === 'development') {
     response.stack = err.stack;
+    response.errorCode = err.code;
   }
 
   res.status(statusCode).json(response);

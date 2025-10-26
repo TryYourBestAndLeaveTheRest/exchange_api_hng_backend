@@ -198,13 +198,19 @@ async function updateLastRefreshTimestamp() {
  * Get top countries by GDP
  */
 async function getTopCountriesByGdp(limit = 5) {
+  // Ensure limit is a safe integer
+  const safeLimit = parseInt(limit, 10);
+  if (isNaN(safeLimit) || safeLimit < 1) {
+    return [];
+  }
+  
   const query = `
     SELECT * FROM countries 
     WHERE estimated_gdp IS NOT NULL 
     ORDER BY estimated_gdp DESC 
-    LIMIT ?
+    LIMIT ${safeLimit}
   `;
-  const results = await db.query(query, [limit]);
+  const results = await db.query(query);
   return results;
 }
 

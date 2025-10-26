@@ -458,7 +458,7 @@ CREATE TABLE request_logs (
 ```env
 # Server
 PORT=3000
-NODE_ENV=development
+NODE_ENV=development   # Set to 'production' in production to hide error details
 
 # Database
 DB_HOST=localhost
@@ -474,6 +474,10 @@ EXCHANGE_RATE_API_URL=https://open.er-api.com/v6/latest/USD
 # Cache
 CACHE_DIR=./cache
 ```
+
+**Important Notes:**
+- **Development:** `NODE_ENV=development` shows detailed error messages and stack traces
+- **Production:** `NODE_ENV=production` hides sensitive error details from API responses
 
 ---
 
