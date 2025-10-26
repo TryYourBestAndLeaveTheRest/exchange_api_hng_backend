@@ -23,4 +23,5 @@ Thumbs.db
 *.swo
 *~
 setup.sh
+deploy.sh
 .github/copilot-instructions.md
